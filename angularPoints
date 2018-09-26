@@ -1,0 +1,90 @@
+call modal in jQuery
+1. Add modal code in html
+
+
+e.g
+
+
+
+<div class="container">
+       
+   
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
+      
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Reason For Declining Message</h4>
+          </div>
+          <div class="modal-body">
+                
+                       
+            <label class="control-label">Decline Reason</label>
+            <input class="form-control m-input" type="text" placeholder="Please enter reason" name="message" [(ngModel)]="message">
+                        
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" (click)="declinekyc()">Submit</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  2. Add modal code in typescript
+  a.  //add import section
+  
+  declare var $:any;
+
+ b. //add variable
+  modalUser:any;
+  
+  c.  showModal(user){
+    $("#myModal").modal('show');
+    this.modalUser = user.username;
+  }
+  declinekyc() {
+    this.activeData = {
+      userName: this.modalUser,
+      message : this.message,
+      value : false
+    };
+    this.postsService.Kycuseractive(this.activeData)
+      .subscribe(
+        data => {
+
+          if (data) {
+            if (data.status == 'OK') {
+
+              if (data.data.iskycverified === true) {
+                alert("KYC is verified");
+                this.Userdata = [];
+                this.totalUsers = [];
+                this.kycList = [];
+                this.ngOnInit();
+              } else if (data.data.iskycverified === false) {
+                alert("KYC is rejected");
+                this.Userdata = [];
+                this.totalUsers = [];
+                this.kycList  = [];
+                this.ngOnInit();
+              }
+            }
+            else {
+
+              alert(data.result);
+              // this._alertService.error('Please enter valid details. ' +  data.result);
+            }
+          } else {
+            alert('Error occurred please try again. ' + data.msg);
+            // this.error = 'Error occurred please try again.'+ data.msg;
+          }
+
+        });
+  }
+  
+  
