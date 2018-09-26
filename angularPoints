@@ -35,18 +35,13 @@ e.g
     
   </div>
   
+  
+  
+  
+  
+  
   2. Add modal code in typescript
   a.  //add import section
-  
-  
-  //Close modal after success
-  
-  
-                      $("#modalid").modal("hide");
-
-
-
-
   
   declare var $:any;
 
@@ -95,6 +90,49 @@ e.g
           }
 
         });
+  }
+  
+  
+  
+  
+  3. //Close modal after success
+  
+  
+                      $("#modalid").modal("hide");
+                      
+                      
+                      
+                      
+                      
+                      
+  
+  4.foreach and filter use in same function
+  
+   getKycDetails(){
+    return this.postsService.getKYCDetailsList()
+      .subscribe(result => {
+        if (result) {
+          let userLen = result.data.length;
+          if (userLen == 0) {
+            this.msg = 'No Any User Found';
+          } else {
+            this.kycList = result.data;
+            this.totalkyc = result.data;
+
+            this.kycList.forEach(res=>{
+              this.totalUsers.filter(data => {
+                if(data.username == res.username){
+                  res.iskycdone = data.iskycdone;
+                }
+              })
+            });
+            console.log("kycLLIST====");
+            console.log(this.kycList);
+          }
+        } else {
+          this.error = 'User Data Not get';
+        }
+      });
   }
   
   
