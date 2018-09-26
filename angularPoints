@@ -38,6 +38,16 @@ e.g
   2. Add modal code in typescript
   a.  //add import section
   
+  
+  //Close modal after success
+  
+  
+                      $("#modalid").modal("hide");
+
+
+
+
+  
   declare var $:any;
 
  b. //add variable
