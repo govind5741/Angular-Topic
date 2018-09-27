@@ -36,6 +36,7 @@ e.g
   </div>
   
   
+ 
   
   
   
@@ -136,3 +137,45 @@ e.g
   }
   
   
+  
+  
+  
+  
+  
+  
+  5.  //set interval for geting date and time per second
+
+  
+  
+   setTimer() {
+    let id = setInterval(()=>{
+
+      let now = new Date();
+    let eventDate = new Date("October 31, 2018 23:59:59");
+    let currentTime = now.getTime();
+    let evenTime = eventDate.getTime();
+
+    let remTime = evenTime - currentTime;
+
+    this.sec = Math.floor(remTime / 1000);
+    this.min = Math.floor(this.sec / 60);
+    this.hrs = Math.floor(this.min / 60);
+    this.day = Math.floor(this.hrs / 24);
+
+    this.hrs %= 24;
+    this.min %= 60;
+    this.sec %= 60;
+
+    this.hrs = (this.hrs < 10) ? 0 + this.hrs : this.hrs;
+    this.min = (this.min < 10) ? 0 + this.min : this.min;
+    this.sec = (this.sec < 10) ? 0 + this.sec : this.sec;
+
+    },1000)
+    
+    // $('.seconds').text(sec);
+    // $('.minutes').text(min);
+    // $('.hours').text(hur);
+    // $('.days').text(day);
+
+    // setTimeout(this.setTimer(), 1000);
+  }
