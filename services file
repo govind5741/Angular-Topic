@@ -1,0 +1,307 @@
+import { Injectable } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { Observable } from 'rxjs/Rx';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import { ActivatedRouteSnapshot, ActivatedRoute, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { FileUploader } from 'ng2-file-upload';
+import { catchError, map } from 'rxjs/operators';
+import { HttpModule } from '@angular/http';
+import { post } from 'selenium-webdriver/http';
+import { error } from 'util';
+import { observable } from 'rxjs';
+
+
+
+@Injectable()
+export class PostsService {
+
+  constructor(private http: Http, private router: Router) {
+  }
+
+  // Get all posts from the API
+  getAllPosts() {
+    return this.http.get('/api/posts')
+      .map(res => res.json());
+  }
+
+  header: any;
+  user: any;
+
+
+  
+  public baseURL = 'http://localhost:3001/';
+  public kycLink = "https://localhost:3001/uploads/"
+
+  private LoginUrl = this.baseURL + 'auth/login';
+  private AddadminUrl = this.baseURL + 'auth/createadmin';
+  private GETadminUrl = this.baseURL + 'auth/getAllAdminUser';
+  private ActiveadminUrl = this.baseURL + 'auth/activateAdmin';
+  private updateAdminUrl = this.baseURL + 'auth/updateAdmin';
+  private deleteAdminUrl = this.baseURL + 'auth/deleteAdmin';
+  private getAdminBynameUrl = this.baseURL + 'auth/getAdminByname';
+  private GETUserUrl = this.baseURL + 'getAllUser';
+  private AddUserUrl = this.baseURL + 'addUser';
+ 
+  setHeader() {
+    this.user = JSON.parse(localStorage.getItem('currentUser'));
+    this.header = new Headers();
+    this.header.append('Content-Type', 'application/json');
+    if (this.user != null) {
+      this.header.append('Authorization', "Bearer " + this.user.data.token);
+    }
+  }
+
+  // add admin
+
+  addAdmin(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    return this.http.post(this.AddadminUrl, JSON.stringify(body), {
+
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  // get all admin list
+
+  getAdmin() {
+    this.setHeader();
+    return this.http.get(this.GETadminUrl, { headers: this.header }) // ...using post request
+      .map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  // active admin
+
+  adminactive(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    console.log(body);
+    return this.http.post(this.ActiveadminUrl, JSON.stringify(body), {
+
+      //headers: headers
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+
+  //login admin
+
+  Login(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    let opts = new RequestOptions();
+
+    return this.http.post(this.LoginUrl, JSON.stringify(body), {
+
+      headers: headers
+    }).map((response: Response) => {
+      // login successful if there's a jwt token in the r
+      // esponse
+      let user = response.json();
+
+      let postdata = JSON.stringify(user.data.token);
+      console.log('postdata' + postdata);
+
+      if (user.data.token) {
+
+        localStorage.setItem('currentUser', JSON.stringify(user));
+
+      } else {
+
+
+        alert('Error occurred please try again. ' + user.result);
+        this.router.navigate(['/login']);
+        return false;
+
+
+      }
+
+
+    }).catch((error: any) => Observable.throw(this.handleError(error)));
+  }
+  private handleError(error: Response | any) {
+    let value = JSON.parse(error._body)
+    console.log(value.result);
+    return Observable.throw(value.result);
+  }
+  //update admin
+
+  // edit news
+
+  editAdmin(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    // let headers = new Headers();
+    // headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+
+    return this.http.post(this.updateAdminUrl, JSON.stringify(body), {
+
+      //headers: headers
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  // delete admin
+
+  deleteAdmin(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+    return this.http.post(this.deleteAdminUrl, JSON.stringify(body), {
+
+      // headers: headers
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  //
+
+  AdminByName(body: Object): Observable<any> {
+    console.log("-------in service------")
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+
+    return this.http.post(this.getAdminBynameUrl, JSON.stringify(body), {
+
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  addUser(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    return this.http.post(this.AddUserUrl, JSON.stringify(body), {
+
+      //headers: headers
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+
+  
+
+
+  addtoken(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    // let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    return this.http.post(this.AddTokenUrl, JSON.stringify(body), {
+
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+
+  useractive(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    // let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    return this.http.post(this.ActiveUserUrl, JSON.stringify(body), {
+
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+  Kycuseractive(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    // let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+    return this.http.post(this.kycVerifiedbyAdminUrl, JSON.stringify(body), {
+
+      headers: this.header
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  edituser(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    //headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+
+    return this.http.post(this.EditUserUrl, JSON.stringify(body), {
+      headers: this.header
+      //headers: headers
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+  deleteuser(body: Object): Observable<any> {
+
+    let bodyString = JSON.stringify(body); // Stringify payload
+    //let headers = new Headers();
+    // headers.append('Content-Type', 'application/json');
+    this.setHeader();
+    let opts = new RequestOptions();
+
+
+    return this.http.post(this.DeleteUserUrl, JSON.stringify(body), {
+      headers: this.header
+      //headers: headers
+    }).map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+
+  getUser(): Observable<any> {
+    this.setHeader();
+    return this.http.get(this.GETUserUrl, { headers: this.header }) // ...using post request
+      .map(res => res.json()) // ...and calling .json() on the response to return data
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error')); //...errors if any
+  }
+
+
+ 
+
+}
